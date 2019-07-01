@@ -1,0 +1,9 @@
+﻿@model IEnumerable<Model.TicketModel>
+
+@{
+    ViewBag.Title = "Payment";
+}
+<link href="~/Content/StyleSheet1.css" rel="stylesheet" />
+<h2>The payment has been successfull</h2>
+<button class="btn " onclick="window.location = '/Customer/BookingDetails?CustomerEmail=@Session["CustomerEmail"]'">View Booking Details</button>
+

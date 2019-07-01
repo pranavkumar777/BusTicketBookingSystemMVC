@@ -1,0 +1,188 @@
+   background-image: url("https://5.imimg.com/data5/PC/TM/MY-13788339/selection_147-500x500.png");
+   .jumbotron {
+     background-size: cover;
+
+}
+body{
+    background-image : url("http://i0.wp.com/www.yatra.com/ythomepagecms/media/imagemanager/2018/Mar/d5781dde016e27f05da42132f586f069.jpg?resize=720%2C293&ssl=1");
+       background-image: url("https://5.imimg.com/data5/PC/TM/MY-13788339/selection_147-500x500.png");
+
+}
+  #signUpForm {
+    background-color: yellow;
+     width:15cm;
+     height:15cm; 
+     transform : translate(20% , 5%);
+
+    }
+
+	layout file
+
+	<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, null)</li>
+                    <li>@Html.ActionLink("API", "Index", "Help", new { area = "" }, null)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year -Bus Ticket Booking System</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>
+
+// display user email
+  <li>   
+                     @{ 
+                        var state = Session["CustomerEmail"];
+                        if (state == null)
+                        {  @Html.ActionLink("Login", "Login", "Customer", new { @area="" },new { @style = "margin-left:800px" }) }
+
+                    else
+                    {
+                        <div style="color:white ; margin-left:600px">
+                            HI ,@state </div>
+                            @Html.ActionLink("Logout", "Logout", "Customer", new { area = "" }, new { @style = "margin-left:600px" })
+                        
+                    }
+
+
+                }</li>
+				<input type="text" id="BusID" name="BusID" value="@Session["CustomerEmail"]" />
+				 <button class="btn " onclick="window.location = '/Customer/SeatSelection?BusID=@item.BusID'">Book Tickets!</button> 
+
+				 
+                <center>                  
+                    
+                        <h3>Credit Card Details</h3>
+                        Credit Card Number <br /><input type="text" name="" required  value="a" /><br />
+                        CVV<br /><input type="text" name=""  required value="a"><br />
+                       Expiry date <br /><input type="text" name="" required value="a"><br />
+                                
+                </center>
+
+				var cvv = document.getElementById("cvv").value;
+            var expiry = document.getElementById("expirydate").value;
+            if (cvv || expiry == null) return false;
+
+			
+@{ 
+<button class="btn " onclick="window.location = '/Customer/BookingDetails?CustomerEmail=@Session["CustomerEmail"]'">View Booking Details</button>
+    }
+
+	 @Html.ActionLink("BookingDetails", "BookingDetails", "Customer", new { area = "" }, null)
+	
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous"></script>
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.BusID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.NumberOfSeats)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Cost)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.CustomerEmail)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.BusSource)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.BusDestination)
+        </th>
+    
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.BusID)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.NumberOfSeats)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Cost)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.CustomerEmail)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.BusSource)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.BusDestination)
+        </td>
+       
+    </tr>
+}
+
+</table>
+<script>
+
+    xhr.abort();
+</script>
+
+<button class="btn " onclick="window.location = '/Customer/BookingDetails?CustomerEmail=@Session["CustomerEmail"]'">View Booking Details</button>
+<button class="btn " onclick="window.location = '/Customer/BookingDetails?CustomerEmail=@Session["CustomerEmail"]'">View Customer Booking Details</button><br />
+   <button class="btn " onclick="window.location = '/Admin/UpdateBusDetails?BusID=@item.BusID'">Update</button>
+
+   ------------------------------------------------------------------------------------------------------------------------------
+
+   
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+    <link type="text/css" rel="Stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/start/jquery-ui.css" />
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var minDate = new Date();
+            $("#start").datepicker({
+
+                showAnim: 'drop',
+                numberOfMonth: 1,
+                minDate: minDate,
+                dateFormat: 'dd/mm/yy'
+            });
+        });
+
+        
+
+    </script>
+
+	https://images7.alphacoders.com/317/317196.jpg

@@ -1,0 +1,185 @@
+﻿@model IEnumerable<Model.BusModel>
+@{
+    ViewBag.Title = "DisplaySeats";
+}
+<link href="~/Content/StyleSheet1.css" rel="stylesheet" />
+<h2>SeatSelection</h2>
+<head>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <style>
+
+        body{
+                font-weight: bold;
+                color: brown;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="jumbotron" style="background-color: #00000047">
+        <div id="seats" style='font-size: 30px; color:black'></div>
+
+
+        <h3>Credit Card Details</h3>
+        Credit Card Number <br /><input type="number" name="cardnumber" id="cardnumber" value="" required="required" /><br />
+        <div id="invalid"></div>
+        CVV<br /><input type="number" id="cvv" name="cvv" value="" required="required"><br />
+        Expiry date <br /><input type="text" id="expirydate" name="expirydate" value="" required="required"><br />
+
+        <button class="btn-success" onclick="submit()" id="button"> book now</button>
+    </div>
+    <div style="display: none;">
+        @{
+            foreach (var item in Model)
+            {
+                <input type="text" id="CustomerEmail" name="CustomerEmail" value="@Session["CustomerEmail"]" />
+                <input type="text" id="BusID" name="BusID" value="@item.BusID" />
+                <input type="text" id="Cost" name="Cost" value="@item.BusTicketCost"/>
+                <input type="text" id="source" name="BusSource" value="@item.BusSource"/>
+                <input type="text" id="destination" name="BusDestination" value="@item.BusDestination"/>
+                break;
+            }
+        }
+    </div>
+
+</body>
+
+<script type="text/javascript">
+    var seletedSeats = [];
+   
+    var index;
+        for (index = 1; index < 33; index++)
+        {  
+            document.getElementById("seats").innerHTML += "<i style='color: black;' id='" + index + "' class='fas fa-bed' onclick='selectSeat(" + index + ")'></i> &nbsp &nbsp";
+        if (index % 2 == 0) {
+            document.getElementById("seats").innerHTML += "&nbsp &nbsp"
+        }
+            if (index % 4 == 0)
+            {
+                document.getElementById("seats").innerHTML+="<br>"
+            }
+            
+        }
+
+        function selectSeat(seatno) {
+
+            console.log(seatno);
+            var color = document.getElementById(seatno).getAttribute("style", "color");
+            if (color.includes("black")) {
+                document.getElementById(seatno).setAttribute("style", "color: green;");
+                seletedSeats.push(seatno);
+
+            }
+            if(color.includes("green"))
+            {
+                document.getElementById(seatno).setAttribute("style", "color:black");
+                var seatIndex = seletedSeats.indexOf(seatno);
+                seletedSeats.splice(seatIndex, 1);
+
+            }
+
+        }
+
+
+        function submit() {
+            
+            var cardnumber = document.getElementById("cardnumber").value;
+            console.log(cardnumber);
+            var cvv = document.getElementById("cvv").value;
+            var expirydate = document.getElementById("expirydate").value;
+            var result = validate(cardnumber);
+
+           console.log(result);
+            var seatDetails = {
+
+                seats: seletedSeats,
+                BusID: document.getElementById("BusID").value,
+                Cost: document.getElementById("Cost").value,
+                CustomerEmail: document.getElementById("CustomerEmail").value,
+                BusSource: document.getElementById("source").value,
+                BusDestination:document.getElementById("destination").value
+            };
+
+            console.log(seatDetails);
+            if (result) {
+             var xhr=   $.ajax({
+                    type: "POST",
+                    url: "Payment",
+
+                    data: seatDetails,
+                    traditional: true,
+                    success: function () {
+                        window.location = "/Customer/Payment";
+                    }
+                }
+                 );
+            
+            }
+            else
+            {
+              
+                document.getElementById("invalid").innerHTML += "invalid credit card";
+                
+            }
+        }
+
+        function validate(value)
+        {
+            console.log(value);
+            var cvv = document.getElementById("cvv").value;
+            var expirydate = document.getElementById("expirydate").value;
+            console.log(cvv);
+            if (cvv=="" || cvv.length !=3)
+            {
+                console.log(cvv.length);
+                return false;
+            }
+            if (expirydate=="")
+                return false;
+
+            if (/[^0-9-\s]+/.test(value)) return false;
+           
+            var nCheck = 0, nDigit = 0, bEven = false;
+            value = value.replace(/\D/g, "");
+
+            for (var n = value.length - 1; n >= 0; n--) {
+                var cDigit = value.charAt(n),
+                      nDigit = parseInt(cDigit, 10);
+
+                if (bEven) {
+                    if ((nDigit *= 2) > 9) nDigit -= 9;
+                }
+
+                nCheck += nDigit;
+                bEven = !bEven;
+            }
+
+            return (nCheck % 10) == 0;
+            
+        }
+            
+
+
+
+
+
+</script>
+<br />
+
+
+
+
+
+
+@{
+    foreach (var seat in Model)
+    {
+        <script>
+                document.getElementById('@seat.BusSeatCount').setAttribute("style", "color: red;");
+        </script>
+    }
+}
+
+

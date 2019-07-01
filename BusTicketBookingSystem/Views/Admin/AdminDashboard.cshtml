@@ -1,0 +1,92 @@
+﻿@model IEnumerable<Model.BusModel>
+
+@{
+    ViewBag.Title = "AdminDashboard";
+}
+<style>   
+table,td{
+               color: white;
+       }
+
+        .jumbotron
+{       opacity: 0.8;
+        /*background-image: url("https://getjar.co.uk/wp-content/uploads/2018/07/4855789-white-background-images-1-300x169.jpg");*/
+          background-size: cover;
+}
+body{
+    background-image: url("https://images.pexels.com/photos/1308624/pexels-photo-1308624.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940");
+    background-size: cover;
+}
+    </style>
+<h2 style="color: white">AdminDashboard</h2>
+
+<p>  
+    @Html.ActionLink("Add New Bus Details", "AddBusDetails",null, new { @style = "color:#cac742" })
+</p>
+<div class="">
+    <table class="table">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.BusID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BusTravelsName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BusSource)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BusDestination)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BusDepartureDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BusDepartureTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BusSeatCount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BusTicketCost)
+            </th>
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BusID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BusTravelsName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BusSource)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BusDestination)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BusDepartureDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BusDepartureTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BusSeatCount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BusTicketCost)
+                </td>
+                <td>
+
+
+                    <button class="btn " onclick="window.location = '/Admin/Delete?BusID=@item.BusID'">Delete</button>
+                </td>
+            </tr>
+        }
+
+    </table>
+</div>

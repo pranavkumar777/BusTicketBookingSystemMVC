@@ -1,0 +1,130 @@
+﻿
+
+@model IEnumerable<Model.BusModel>
+
+
+@{
+    ViewBag.Title = "Dashboard";
+}
+<head>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js" type="text/javascript"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js" type="text/javascript"></script>
+    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="Stylesheet" type="text/css" />
+    <script type=text/javascript src="your_jquery_ui.js"></script>
+    <script type="text/javascript">
+$(function () {
+    $("#txtFrom").datepicker({
+        numberOfMonths: 2,
+        onSelect: function (selected) {
+            var dt = new Date(selected);
+            dt.setDate(dt.getDate() + 1);
+            $("#txtTo").datepicker("option", "minDate", dt);
+        }
+    });
+    $("#txtTo").datepicker({
+        numberOfMonths: 2,
+        onSelect: function (selected) {
+            var dt = new Date(selected);
+            dt.setDate(dt.getDate() - 1);
+            $("#txtFrom").datepicker("option", "maxDate", dt);
+        }
+    });
+});
+    </script>
+
+   
+    <style>
+
+        table, th, td {
+  border: 1px solid black;
+}
+        table,td{
+            font-weight:bold;
+        }
+
+    </style>
+    <link href="~/Content/StyleSheet1.css" rel="stylesheet" />
+</head>
+<h2>Search for Buses</h2>
+<body>
+    <div class="column-layout">
+        <div class="jumbotron" style="background-color: #61d23ceb">
+
+            <div class="signup">
+
+
+                <form name="register" class="form-group" method="post">
+                    Source <br /><input type="text" name="BusSource" required placeholder="" value="" /><br />
+                    Destination<br /><input type="text" name="BusDestination" placeholder="" required value=""><br />
+                    Date:<br /><input type="date" name="BusDepartureDate" value="" required /> <br />
+                    <input class="btn btn-danger" type="submit" value="Search" />
+                    <input type="text" id="txtFrom" class="datepicker" /> 
+                </form>
+
+
+            </div>
+            @if (Model != null)
+            {
+                <table class="table">
+                    <tr>
+                        <th>
+                            ID
+                        </th>
+                        <th>
+                            Travels
+                        </th>
+
+                        <th>Time</th>
+                        <th>
+                            Source
+                        </th>
+                        <th>
+                            Destination
+                        </th>
+
+                        <th>
+                            Available Seats
+                        </th>
+                        <th>
+                            Ticket Cost
+                        </th>
+                        <th> Book Tickets</th>
+                    </tr>
+
+                    @foreach (var item in Model)
+                {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.BusID)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.BusTravelsName)
+                            </td>
+
+                            <td>@Html.DisplayFor(modelItem => item.BusDepartureTime)</td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.BusSource)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.BusDestination)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.BusSeatCount)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.BusTicketCost)
+                            </td>
+
+
+                            <td>
+                                <button class="btn btn-danger " onclick="window.location = '/Customer/DisplaySeats?BusID=@item.BusID'">Book Tickets!</button>
+                            </td>
+                        </tr>
+                    }
+
+                </table>
+            }
+
+        </div>
+    </div>
+</body>
