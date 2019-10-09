@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Model
@@ -14,5 +15,7 @@ namespace Model
         public string CustomerEmail { get; set; }
         public string BusSource { get;set;}
         public string BusDestination { get;set;}
+        public DateTime BusDepartureDate { get; set; }
+        public string BusDepartureTime { get; set; }
     }
 }

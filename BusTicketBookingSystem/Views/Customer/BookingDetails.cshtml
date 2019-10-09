@@ -1,12 +1,16 @@
 ﻿@model IEnumerable<Model.TicketModel>
 
+
+<br /><br />
+<button class="btn btn-danger " style="font-size:20px ;border-left-width: 10px;border-right-width: 10px;border-top-width: 0px;border-bottom-width: 5px;padding-bottom: 0px;" onclick="window.location = '/Customer/Dashboard'">Back</button>
+
 @{
     ViewBag.Title = "BookingDetails";
 }
-
 <h2>BookingDetails</h2>
 
-<div class="jumbotron">
+
+<div class="jumbotron" style="background-color:burlywood">
     <table class="table">
         <tr>
             <th>
@@ -21,7 +25,7 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.BusDestination)
-            </th>
+            </th>       
             <th>
                 @Html.DisplayNameFor(model => model.NumberOfSeats)
             </th>
@@ -44,14 +48,13 @@
             <td>
                 @Html.DisplayFor(modelItem => item.BusID)
             </td>
-
             <td>
                 @Html.DisplayFor(modelItem => item.BusSource)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.BusDestination)
             </td>
-
+          
             <td>
                 @Html.DisplayFor(modelItem => item.NumberOfSeats)
             </td>

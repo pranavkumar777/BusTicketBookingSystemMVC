@@ -186,3 +186,305 @@ body{
     </script>
 
 	https://images7.alphacoders.com/317/317196.jpg
+
+	   public List<BusModel> UpdateBusDetails(int BusID)
+        {
+            List<BusModel> busList = new List<BusModel>();
+            try
+            {  // sqlConnection = new SqlConnection(con);
+                sqlConnection.Open();
+                SqlCommand sqlCommand = new SqlCommand("Select * from BusDetails where BusID=@busID", sqlConnection);
+                sqlCommand.Parameters.AddWithValue("@busID",BusID);
+                using (SqlDataReader sqlDataReader = sqlCommand.ExecuteReader())
+                {
+                    while(sqlDataReader.Read())
+                    {
+                        busList.Add(new BusModel
+                        {
+                            BusID = Convert.ToInt32(sqlDataReader["BusID"]),
+                            BusTravelsName = sqlDataReader["BusTravelsName"].ToString(),
+                            BusSource = sqlDataReader["BusSource"].ToString(),
+                            BusDestination = sqlDataReader["BusDestination"].ToString(),
+                            BusDepartureDate = Convert.ToDateTime(sqlDataReader["BusDepartureDate"]),
+                            BusDepartureTime = (sqlDataReader["BusDepartureTime"]).ToString(),
+                            BusSeatCount = Convert.ToInt32(sqlDataReader["BusSeatCount"]),
+                            BusTicketCost = Convert.ToInt32(sqlDataReader["BusTicketCost"])
+                        });
+
+                    }
+                    return busList;
+                }
+
+            }
+            catch(SqlException)
+            { }
+            finally {
+                sqlConnection.Close();
+            }
+
+            return busList;
+        }
+
+		public ActionResult Index()
+        {
+
+            return View();
+        }
+
+		[HttpGet]
+        public ActionResult UpdateBusDetails(BusModel bus)
+        {
+            List<BusModel> busDetails = new List<BusModel>();
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("http://localhost:59711/api/AdminAPI/");
+                var get = client.GetAsync("UpdateBusDetails?BusID="+bus.BusID);
+                get.Wait();
+                var result = get.Result;
+                if (result.IsSuccessStatusCode)
+                {
+                    var getBusDetails = result.Content.ReadAsAsync<List<BusModel>>();
+                    getBusDetails.Wait();
+                    busDetails = getBusDetails.Result;
+                }
+            }
+            return View(busDetails);
+        }
+       
+	               document.getElementById("seats").innerHTML += "<i style='color: black;' id='" + index + "' class='fas fa-bed' onclick='selectSeat(" + index + ")'></i> &nbsp &nbsp";
+				   <br /> <br />@Html.ActionLink("Back", "Dashboard", null, new { @class = "test" ,@style="font-size: 30px" }) <br />
+
+				   //admin
+				    @{
+                           var adminstate = Session["AdminEmail"];
+
+                           if (adminstate == null)
+                           { 
+
+                            @Html.ActionLink("Admin", "Login", "Admin", new { area = "" }, new { @style = "float: right; left: 800px; " })
+                           }
+
+
+
+                           else
+                           {
+                        
+
+                            @Html.ActionLink("Admin Logout", "Logout", "Admin", new { area = "" }, new { @style = "float: right; left: 800px; " })
+
+                           }
+
+
+                    }
+					                   
+						
+                    /*  DataTable dataTable = new DataTable();
+                      SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(sqlCommand);
+                      sqlDataAdapter.Fill(dataTable);*/			   
+									   
+									                @Html.Label("welcome "+@state+"", new { @style = "float: right; left: 700px; color: yellow" })
+
+													  using (SqlCommand sqlCommand = new SqlCommand("ViewBusDetailsById", sqlConnection))
+                {
+                    sqlConnection.Open();
+                    int BusID = 0;
+                    sqlCommand.CommandType = CommandType.StoredProcedure;
+                    foreach (var item in ticketDetails)
+                    {
+
+                        BusID = item.BusID;
+                    }
+
+                    sqlCommand.Parameters.AddWithValue("@BusId", BusID);
+                    SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
+                    while (sqlDataReader.Read())
+                    {
+                        ticketDetails.Add(new TicketModel
+                        {
+                            BusDepartureDate = Convert.ToDateTime(sqlDataReader["BusDepartureDate"]),
+                            BusDepartureTime = (sqlDataReader["BusDepartureTime"]).ToString()
+
+                        });
+                    }
+					  <td>
+                @Html.DisplayFor(modelItem => item.BusDepartureDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.BusDepartureTime)
+            </td>
+
+			    <th>
+                @Html.DisplayNameFor(model =>model.BusDepartureDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BusDepartureTime)
+            </th>
+
+			 /// <summary>
+        /// This function authenticates admin credentials
+        /// </summary>
+        /// <param name="admin">object for AdminModel</param>
+        /// <returns>true or false</returns>
+        public bool LoginValidate(AdminModel admin)
+        {
+            try {
+              
+                sqlConnection.Open();
+                using (SqlCommand sqlCommand = new SqlCommand("AdminAuthenticate", sqlConnection))
+                {
+                    sqlCommand.CommandType = CommandType.StoredProcedure;
+                    sqlCommand.Parameters.AddWithValue("@Email", admin.Email);
+                    sqlCommand.Parameters.AddWithValue("@Password", admin.Password);
+
+                    DataTable dataTable = new DataTable();
+                    SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(sqlCommand);
+                    sqlDataAdapter.Fill(dataTable);
+                    if (dataTable.Rows.Count > 0)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+
+            }
+            catch(SqlException sqlException)
+            {
+                log.Error(sqlException.ToString());
+                return false;
+            }
+            finally
+            {
+                sqlConnection.Close();
+            }
+        }
+
+		 /// <summary>
+        /// Admin login page
+        /// </summary>
+        /// <returns> view</returns>
+        public ActionResult Login()
+        {
+            return View();
+           }
+
+        /// <summary>
+        /// authenticates admin credentials
+        /// </summary>
+        /// <param name="admin">object for AdminModel</param>
+        /// <returns>view</returns>
+        [HttpPost]
+        public ActionResult Login(AdminModel admin)
+        {
+
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("http://localhost:59711/api/AdminAPI/");
+                var postTask = client.PostAsJsonAsync<AdminModel>("LoginValidate", admin);
+                postTask.Wait();
+                var result = postTask.Result;
+                if (result.IsSuccessStatusCode)
+                {
+                    var Read = result.Content.ReadAsAsync<bool>();
+
+                   
+
+                    ViewBag.Result = Read.Result;
+                    if (ViewBag.Result == true)
+                    {
+                        Session["AdminEmail"] = admin.Email;
+
+                        return RedirectToAction("/AdminDashboard");
+                    }
+                }
+
+            }
+
+            return View();
+        }
+------------------------------------------------
+
+
+@model Model.AdminModel
+
+@{
+    ViewBag.Title = "Login";
+}
+
+<h2>Admin Login</h2>
+<link href="~/Content/StyleSheet1.css" rel="stylesheet" />
+<head>
+
+    <style>
+        body{
+    background-image : url("https://images7.alphacoders.com/317/317196.jpg");
+    background-size : cover;
+}
+       label{
+               color: yellow;
+       }
+
+        .jumbotron
+{       opacity: 0.8;
+        /*background-image: url("https://getjar.co.uk/wp-content/uploads/2018/07/4855789-white-background-images-1-300x169.jpg");*/
+          background-size: cover;
+}
+       
+    </style>
+</head>
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <br /><br />
+    <br /><br />
+
+    <div class="jumbotron" style="background-color:#00000054 " >
+        <div class="form-horizontal">
+
+            <hr />
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+
+            <div class="form-group">
+                @Html.Label("AdminEmail", "Email", htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                <div class="col-md-10">
+                    @Html.TextBoxFor(model => model.Email, new { htmlAttributes = new { } })
+                    @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger",  @style = "color: white" } )
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.Label("adminPassword", "Password", htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                <div class="col-md-10">
+                    @Html.PasswordFor(model => model.Password, new { htmlAttributes = new { @class = "form-control", @style = "margin-left:590px; width:250px" } })
+                    @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger", @style = "color: white" })
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Login" class="btn btn-default" />
+                </div>
+                
+
+            </div>
+
+        </div>
+    </div>
+
+
+}
+
+
+<add key = "ConfigURL" value="http://172.24.125.116:8080/api/"/>
+
+                                //  return RedirectToAction("/Login");
+                          //  return RedirectToAction("/Dashboard", "Customer");
+						                              //return RedirectToAction("/AdminDashboard", "Admin");
+                    //return RedirectToAction("/Login");
+            //return RedirectToAction("/Login");
+                        // return RedirectToAction("/AdminDashboard");
+            // return RedirectToAction("/Login");
+// return RedirectToAction("/AdminDashboard");

@@ -2,7 +2,9 @@
 
 using DAL;
 using Model;
+using System;
 using System.Collections.Generic;
+
 
 namespace BL
 {
@@ -12,17 +14,33 @@ namespace BL
         CustomerDAL customerDAL = new CustomerDAL();
         public bool AddNewCustomer(CustomerModel customer)
         {
-            return customerDAL.AddNewCustomer(customer);
-           // return true;
+
+            if (customerDAL.IfEmployeeIdExists(customer.CustomerEmail))
+            {
+                return false;
+            }
+            return customerDAL.AddNewCustomer(customer);   
+                 
         }
-        public bool LoginValidate(CustomerModel customer)
+
+        public string LoginValidate(CustomerModel customer)
         {
-            return customerDAL.LoginValidate(customer);
+            string role = "";
+            List<CustomerModel>Details = customerDAL.LoginValidate(customer);
+            foreach (var item in Details)
+            {
+                role = item.CustomerRole;
+            }
+          
+
+
+            return role;
         }
 
         
         public List<BusModel> DisplayBusDetails(BusModel bus)
         {
+           
             return customerDAL.DisplayBusDetails(bus);
         }
 

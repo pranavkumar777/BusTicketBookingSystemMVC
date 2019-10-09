@@ -1,25 +1,31 @@
-﻿
-
-using Model;
+﻿using Model;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Data;
 using System.Data.SqlClient;
 
+using System.Configuration;
+
+
 namespace DAL
 {
-    public class CustomerDAL
+    public class CustomerDAL : ICustomerDataBaseOperations
     {
-        string con = @"server=ASPIRE1251; database=bus; integrated Security=false; user=sa; password=aspire@123";
-        SqlConnection sqlConnection = null;
-        //  SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["con"].ConnectionString);
+    
+          SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["DatabaseConnection"].ConnectionString);
+          private static readonly log4net.ILog log =log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-
+        /// <summary>
+        /// This function adds new customer details to the database
+        /// </summary>
+        /// <param name="customer">object for customer model</param>
+        /// <returns>true or false</returns>
         public bool AddNewCustomer(CustomerModel customer)
         {
             try
             {
-                sqlConnection = new SqlConnection(con);
+                
                 sqlConnection.Open();
                 using (SqlCommand sqlCommand = new SqlCommand("AddCustomerDetails", sqlConnection))
                 {
@@ -33,8 +39,9 @@ namespace DAL
                     sqlCommand.ExecuteNonQuery();
                 }
             }
-            catch(SqlException)
+            catch(SqlException sqlException)
             {
+                log.Error(sqlException.ToString());
             }
             finally
             {
@@ -45,59 +52,72 @@ namespace DAL
 
         }
 
-        public bool LoginValidate(CustomerModel customer)
+        /// <summary>
+        /// This function authenticates user login credentials
+        /// </summary>
+        /// <param name="customer">object for customer model</param>
+        /// <returns>true or false</returns>
+        public List<CustomerModel> LoginValidate(CustomerModel customer)
         {
-
-            sqlConnection = new SqlConnection(con);
+            List<CustomerModel> Details = new List<CustomerModel>();
             sqlConnection.Open();
             try
             {
-                using (SqlCommand sqlCommand = new SqlCommand("Select * from Customer where CustomerEmail=@CustomerEmail and CustomerPassword=@CustomerPassword", sqlConnection))
+               
+                log.Info("Application is working");
+                using (SqlCommand sqlCommand = new SqlCommand("CustomerAuthenticate", sqlConnection))
                 {
+                    sqlCommand.CommandType = CommandType.StoredProcedure;
                     sqlCommand.Parameters.AddWithValue("@CustomerEmail", customer.CustomerEmail);
                     sqlCommand.Parameters.AddWithValue("@CustomerPassword", customer.CustomerPassword);
-                    //  SqlCommand sqlCommand = new SqlCommand("Select * from Customer where CustomerEmail=@email and CustomerPassword=@password", sqlConnection);
-                    DataTable dataTable = new DataTable();
-                    SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(sqlCommand);
-                    sqlDataAdapter.Fill(dataTable);
-                    if (dataTable.Rows.Count > 0)
-                    {
-                        return true;
-                    }
-                    return false;
-                    /*     int usercount = (Int32)sqlCommand.ExecuteScalar();
-                         if (usercount == 1)
-                             return true;
-                         return false; */
 
+                    SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
+                    while (sqlDataReader.Read())
+                    {
+                        Details.Add(new CustomerModel
+                        {
+                            CustomerRole = sqlDataReader["role"].ToString()
+                        });
+                        return Details;
+                    }
+           
+                    return Details;
+                
                 }
             }
-            catch(SqlException)
+            catch(SqlException sqlException)
             {
-                return false;
+                log.Error(sqlException.ToString());
+                return Details;
             }
             finally
             {
                 sqlConnection.Close();
+                
             }
 
         }
 
-
+        /// <summary>
+        /// This function displays the details of buses which customer searched
+        /// </summary>
+        /// <param name="bus">object for Bus model</param>
+        /// <returns>a list</returns>
         public List<BusModel> DisplayBusDetails(BusModel bus)
         {
             List<BusModel> BusDetails = new List<BusModel>();
             try
-            {
-                sqlConnection = new SqlConnection(con);
-                sqlConnection.Open();
-                SqlCommand sqlCommand = new SqlCommand("Select * from BusDetails where BusSource=@source and BusDestination=@destination and BusDepartureDate=@date", sqlConnection);
+            {           
+                  sqlConnection.Open();
+                using (SqlCommand sqlCommand = new SqlCommand("DisplaySearchedBuses", sqlConnection))
+                { 
+                sqlCommand.CommandType = CommandType.StoredProcedure;
                 sqlCommand.Parameters.AddWithValue("@source", bus.BusSource);
                 sqlCommand.Parameters.AddWithValue("@destination", bus.BusDestination);
-                sqlCommand.Parameters.AddWithValue("@date", bus.BusDepartureDate);
+                sqlCommand.Parameters.AddWithValue("@busdate", bus.BusDepartureDate);
 
-                using (SqlDataReader sqlDataReader = sqlCommand.ExecuteReader())
-                {
+                SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
+                
                     while (sqlDataReader.Read())
                     {
                         BusDetails.Add(new BusModel
@@ -117,8 +137,10 @@ namespace DAL
                     }
                 }
             }
-            catch (SqlException)
+            catch (SqlException sqlException)
             {
+                log.Error(sqlException.ToString());
+
             }
 
             finally { sqlConnection.Close(); }
@@ -126,19 +148,25 @@ namespace DAL
             return BusDetails;
         }
         
+        /// <summary>
+        /// This function displays the booked seats and empty seats
+        /// </summary>
+        /// <param name="BusID">unique id of each bus</param>
+        /// <returns>a list</returns>
                public List<BusModel> DisplaySeats(int BusID)
                 {
                     List<BusModel> seatList = new List<BusModel>();
-                    sqlConnection = new SqlConnection(con);
+           
                     sqlConnection.Open();
 
                     try
                     {
 
 
-                        using (SqlCommand sqlCommand = new SqlCommand("Select * from  SeatAllocation where BusID=@BusID ", sqlConnection))
+                        using (SqlCommand sqlCommand = new SqlCommand("PartiallyBookedBusSeats", sqlConnection))
                         {
-                            sqlCommand.Parameters.AddWithValue("@BusID", BusID);
+                          sqlCommand.CommandType = CommandType.StoredProcedure;
+                             sqlCommand.Parameters.AddWithValue("@BusID", BusID);
                             SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
                             while (sqlDataReader.Read())
                             {
@@ -149,15 +177,17 @@ namespace DAL
                                     BusTicketCost = Convert.ToInt32(sqlDataReader["BusTicketCost"]),
                                      BusSource = sqlDataReader["BusSource"].ToString(),
                                     BusDestination = sqlDataReader["BusDestination"].ToString()
+                                   
                                 });
                             }
                             sqlConnection.Close();
                         }
                         if(seatList.Count==0)
                         {
-                            using (SqlCommand sqlCommand = new SqlCommand("Select * from BusDetails where BusID=@BusId ", sqlConnection))
+                            using (SqlCommand sqlCommand = new SqlCommand("EmptyBusSeats ", sqlConnection))
                             {
                                 sqlConnection.Open();
+                                sqlCommand.CommandType = CommandType.StoredProcedure;
                                 sqlCommand.Parameters.AddWithValue("@BusId", BusID);
                                 SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
                                 while (sqlDataReader.Read())
@@ -168,6 +198,7 @@ namespace DAL
                                         BusTicketCost = Convert.ToInt32(sqlDataReader["BusTicketCost"]),
                                         BusSource = sqlDataReader["BusSource"].ToString(),
                                         BusDestination = sqlDataReader["BusDestination"].ToString()
+                                       
                                     });
                                 }
                             }
@@ -175,9 +206,10 @@ namespace DAL
                         }
 
                     }
-                    catch (SqlException)
+                    catch (SqlException sqlException)
                     {
-                    }
+                log.Error(sqlException.ToString());
+                       }
                     finally
                     {
                         sqlConnection.Close();
@@ -185,47 +217,37 @@ namespace DAL
                     return seatList;
                 }
 
-        /*          public List<TicketModel> Payment(TicketModel ticket)
-                  {
-
-                      List<TicketModel> ticketDetails = new List<TicketModel>();
-                      ticketDetails.Add(new TicketModel
-                      {
-                          BusID = ticket.BusID,
-                          seats = ticket.seats
-                      }
-                          );
-                      return ticketDetails;
-                  }
-
-              } 
-             */
+        /// <summary>
+        /// This functions makes payment and registers customer's ticket
+        /// </summary>
+        /// <param name="ticket">object for ticketmodel </param>
+        /// <returns>a list </returns>
         public List<TicketModel> Payment(TicketModel ticket)
         {
-
-            List<TicketModel> ticketDetails = new List<TicketModel>();
-            sqlConnection = new SqlConnection(con);
+            List<TicketModel> ticketDetails = new List<TicketModel>();      
             try
             {
                 sqlConnection.Open();
                 int seatCount = ticket.seats.Length;
                 int totalCost = seatCount * ticket.Cost;
-                string query = "INSERT INTO SeatAllocation (BusID,BusSource,BusDestination,SeatNumber,BusTicketCost) Values(@BusID,@Bussource,@Busdestination,@SeatNumber,@Cost)";
 
-                using (SqlCommand sqlCommand = new SqlCommand("INSERT INTO PaymentDetails(BusID,BusSource,BusDestination,CustomerEmail,Seats,SeatNumbers,TotalCost)values(@Busid,@BusSource,@BusDestination,@Email,@seat,@seatnumbers,@totalcost)", sqlConnection))
+                using (SqlCommand sqlCommand = new SqlCommand("AddPaymentDetails", sqlConnection))
                 {
-                    sqlCommand.Parameters.AddWithValue("@Busid", ticket.BusID);
+                    sqlCommand.CommandType = CommandType.StoredProcedure;
+                    sqlCommand.Parameters.AddWithValue("@id", ticket.BusID);
                     sqlCommand.Parameters.AddWithValue("@Email", ticket.CustomerEmail);
                     sqlCommand.Parameters.AddWithValue("@seat", seatCount);
                     sqlCommand.Parameters.AddWithValue("@totalcost", totalCost);
                     sqlCommand.Parameters.AddWithValue("@BusSource", ticket.BusSource);
                     sqlCommand.Parameters.AddWithValue("@BusDestination", ticket.BusDestination);
-                    sqlCommand.Parameters.AddWithValue("@seatnumbers", ticket.SeatNumbers);
+                    sqlCommand.Parameters.AddWithValue("@seatnumbers", ticket.SeatNumbers);                   
                     sqlCommand.ExecuteNonQuery();
                 }
                 for (int i = 0; i < seatCount; i++)
-                    using (SqlCommand sqlCommand = new SqlCommand(query, sqlConnection))
+                    using (SqlCommand sqlCommand = new SqlCommand("AddSeatDetails", sqlConnection))
                     {
+                        
+                        sqlCommand.CommandType = CommandType.StoredProcedure;
                         sqlCommand.Parameters.AddWithValue("@BusID", ticket.BusID);
                         sqlCommand.Parameters.AddWithValue("@Cost", ticket.Cost);
                         sqlCommand.Parameters.AddWithValue("@Bussource", ticket.BusSource);
@@ -241,16 +263,15 @@ namespace DAL
                 {
                     BusID =ticket.BusID,
                     CustomerEmail = ticket.CustomerEmail,
-                    NumberOfSeats = seatCount,
-                  //  seats=ticket.seats,
+                    NumberOfSeats = seatCount, 
                     Cost = ticket.Cost,
                     BusSource = ticket.BusSource,
                     BusDestination = ticket.BusDestination
                 });
             }
-            catch (SqlException)
+            catch (SqlException sqlException)
             {
-
+                log.Error(sqlException.ToString());
             }
             finally
             {
@@ -260,20 +281,25 @@ namespace DAL
             return ticketDetails;
         }
        
-
+        /// <summary>
+        /// This function displays  booking details of customer
+        /// </summary>
+        /// <param name="CustomerEmail">email id of each customer</param>
+        /// <returns>a list </returns>
         public List<TicketModel> BookingDetails(string CustomerEmail)
         {
             List<TicketModel> ticketDetails = new List<TicketModel>();
-            sqlConnection = new SqlConnection(con);
             sqlConnection.Open();
-            
+
             try
             {
-                using (SqlCommand sqlCommand = new SqlCommand("Select * from PaymentDetails where CustomerEmail=@email ", sqlConnection))
+
+                using (SqlCommand sqlCommand = new SqlCommand("ViewBookingDetailsByCustomer", sqlConnection))
                 {
+                    sqlCommand.CommandType = CommandType.StoredProcedure;
                     sqlCommand.Parameters.AddWithValue("@email", CustomerEmail);
                     SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
-                   
+
                     while (sqlDataReader.Read())
                     {
                         ticketDetails.Add(new TicketModel
@@ -281,19 +307,24 @@ namespace DAL
                             BusID = Convert.ToInt32(sqlDataReader["BusID"]),
                             CustomerEmail = sqlDataReader["CustomerEmail"].ToString(),
                             NumberOfSeats = Convert.ToInt32(sqlDataReader["Seats"].ToString()),
-                            SeatNumbers=sqlDataReader["SeatNumbers"].ToString(),
+                            SeatNumbers = sqlDataReader["SeatNumbers"].ToString(),
                             Cost = Convert.ToInt32(sqlDataReader["TotalCost"]),
                             BusSource = sqlDataReader["BusSource"].ToString(),
-                            BusDestination = sqlDataReader["BusDestination"].ToString()
+                            BusDestination = sqlDataReader["BusDestination"].ToString(),
+
+
                         });
                     }
                     sqlConnection.Close();
                 }
-               
-               
+
+   
             }
-            catch (SqlException)
+
+
+            catch (SqlException sqlException)
             {
+                log.Error(sqlException.ToString());
             }
             finally
             {
@@ -301,7 +332,45 @@ namespace DAL
             }
                 return ticketDetails;
         }
-}
+
+        public bool IfEmployeeIdExists(string CustomerEmail)
+        {
+            try
+            {
+               
+                sqlConnection.Open();
+                // SqlCommand sqlCommand = new SqlCommand("select * from customer where CustomerEmail='" + CustomerEmail + "'", sqlConnection);
+
+                SqlCommand sqlCommand = new SqlCommand("CheckIfEmailExists", sqlConnection);
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.AddWithValue("@CustomerEmail", CustomerEmail);
+                SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();                
+                if (sqlDataReader.HasRows)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("There is an exception" + e);
+                return false;
+            }
+            finally
+            {
+                sqlConnection.Close();
+
+            }
+        }
+
+
+
+
+
+    }
 
 }
 

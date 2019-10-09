@@ -1,9 +1,12 @@
 ﻿@model IEnumerable<Model.TicketModel>
-
+<br /><br />
+<button class="btn btn-danger " style="font-size:20px ;border-left-width: 10px;border-right-width: 10px;border-top-width: 0px;border-bottom-width: 5px;padding-bottom: 0px;" onclick="window.location = '/Customer/Dashboard'">Back</button>
+&nbsp; <button class="btn " onclick="window.location = '/Customer/BookingDetails?CustomerEmail=@Session["CustomerEmail"]'">View Booking Details</button> <br /><br />
 @{
     ViewBag.Title = "Payment";
 }
 <link href="~/Content/StyleSheet1.css" rel="stylesheet" />
-<h2>The payment has been successfull</h2>
-<button class="btn " onclick="window.location = '/Customer/BookingDetails?CustomerEmail=@Session["CustomerEmail"]'">View Booking Details</button>
-
+<div class="jumbotron" style="background-color:burlywood">
+    <h2>The payment has been successfull</h2>
+    
+</div>

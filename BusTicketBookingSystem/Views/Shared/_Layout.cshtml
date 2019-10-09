@@ -6,7 +6,17 @@
     <title>@ViewBag.Title</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
-  
+    <style>
+     footer {
+  position: fixed; 
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: red;
+  color: white;
+  text-align: center;
+}
+        </style>
 </head>
 <body>
     <div class="navbar navbar-inverse navbar-fixed-top">
@@ -17,53 +27,30 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("Bus Ticket Booking System", "Dashboard", "Customer", new { area = "" }, new { @class = "navbar-brand" })
-               
+                @Html.ActionLink("Search for Buses", "Dashboard", "Customer", new { area = "" }, new { @class = "navbar-brand" , @style="font-weight: 700 ;color:yellow" })
+
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                   
+
                     <li>
                         @{
                             var state = Session["CustomerEmail"];
 
                             if (state == null)
-                            {  @Html.ActionLink("Login", "Login", "Customer", new { @area = "" }, null) }
-
-
+                            {
+                                 @Html.ActionLink("Login", "Login", "Customer", new { @area = "" }, new { @style = "float: right; left: 800px; font-weight:800 ;color:yellow " }) }
 
                             else
                             {
-                                        @Html.ActionLink("Logout", "Logout", "Customer", new { area = "" }, null)
-
+                                @Html.ActionLink("Welcome "+@state+" Logout", "Logout", "Customer", new { area = "" }, new { @style = "float: right; left: 700px; font-weight:800 ;color:yellow" })
                             }
-
 
                         }
                     </li>
                     <li>
-                       @{
-                           var adminstate = Session["AdminEmail"];
-
-                           if (adminstate == null)
-                           { 
-
-                            @Html.ActionLink("Admin", "Login", "Admin", new { area = "" }, new { @style = "float: right; left: 800px; " })
-                           }
 
 
-
-                           else
-                           {
-                        
-
-                            @Html.ActionLink("Admin Logout", "Logout", "Admin", new { area = "" }, new { @style = "float: right; left: 800px; " })
-
-                           }
-
-
-                    }
-                        
 
 
                     </li>
@@ -74,13 +61,15 @@
     <div class="container body-content">
         @RenderBody()
         <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year -Bus Ticket Booking System</p>
-        </footer>
+
     </div>
 
-    @Scripts.Render("~/bundles/jquery")
+
     @Scripts.Render("~/bundles/bootstrap")
     @RenderSection("scripts", required: false)
+    <footer>
+        &copy; @DateTime.Now.Year -Bus Ticket Booking System
+    </footer>
 </body>
+
 </html>

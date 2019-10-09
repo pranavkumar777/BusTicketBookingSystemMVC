@@ -9,10 +9,7 @@ namespace BL
     public class AdminBL
     {
         AdminDAL adminDAL = new AdminDAL();
-        public bool LoginValidate(AdminModel admin)
-        {
-            return adminDAL.LoginValidate(admin);
-        }
+      
 
         public List<BusModel> DisplayAllBusDetails(BusModel bus)
         {
@@ -27,11 +24,7 @@ namespace BL
         {
             return adminDAL.AddBusDetails(bus);
         }
-        public List<BusModel> UpdateBusDetails(int BusID)
-        {
-
-            return adminDAL.UpdateBusDetails(BusID);
-        }
+      
 
     }
 }
